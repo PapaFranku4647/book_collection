@@ -1,0 +1,17 @@
+<h1>Delete Book</h1>
+
+<p>
+  Are you sure you want to delete the book:
+  <strong><%= @book.title.presence || "(untitled)" %></strong>?
+</p>
+
+<div style="margin-top: 1rem;">
+  <%= button_to "Yes, delete this book",
+                @book,
+                method: :delete,
+                form: { data: { turbo_confirm: "This cannot be undone. Continue?" } } %>
+</div>
+
+<p style="margin-top: 1rem;">
+  <%= link_to "Cancel and go back to Home", books_path %>
+</p>
