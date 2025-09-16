@@ -1,0 +1,17 @@
+<h1>Delete User Book Association</h1>
+
+<p>
+  Are you sure you want to delete the association between:
+  <strong><%= @user_book.user.username %></strong> and <strong><%= @user_book.book.title %></strong>?
+</p>
+
+<div style="margin-top: 1rem;">
+  <%= button_to "Yes, delete this association",
+                @user_book,
+                method: :delete,
+                form: { data: { turbo_confirm: "This cannot be undone. Continue?" } } %>
+</div>
+
+<p style="margin-top: 1rem;">
+  <%= link_to "Cancel and go back to User Books", user_books_path %>
+</p>
