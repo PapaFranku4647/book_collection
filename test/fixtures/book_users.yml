@@ -1,7 +1,9 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: "The Great Gatsby"
+  user: one
+  book: one
 
 two:
-  title: "To Kill a Mockingbird"
+  user: two
+  book: two

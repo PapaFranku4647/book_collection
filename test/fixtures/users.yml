@@ -1,7 +1,7 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  title: "The Great Gatsby"
+  username: "john_doe"
 
 two:
-  title: "To Kill a Mockingbird"
+  username: "jane_smith"
