@@ -1,6 +1,6 @@
-class DropBookUsers < ActiveRecord::Migration[6.1]
+class DropBookUsers < ActiveRecord::Migration[6.1] # or your version
   def change
-    drop_table :book_users do |t|
+    drop_table :book_users, if_exists: true do |t|
       t.bigint "user_id", null: false
       t.bigint "book_id", null: false
       t.datetime "created_at", precision: 6, null: false
