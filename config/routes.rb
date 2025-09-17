@@ -15,5 +15,5 @@ Rails.application.routes.draw do
     end
   end
 
-  root "user_books#index"
+  root "books#index"
 end
