@@ -7,93 +7,58 @@ env:
 
 name: Rails tests
 on: [push, pull_request]
-
 jobs:
   rspec-test:
     name: RSpec
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:12
+        ports:
+        - 5432:5432
         env:
           POSTGRES_USER: ${{ env.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-        ports:
-          - 5432:5432
-        # Optional but helpful: wait until Postgres is ready
-        options: >-
-          --health-cmd="pg_isready -U ${{ env.POSTGRES_USER }}"
-          --health-interval=5s
-          --health-timeout=5s
-          --health-retries=10
-
     steps:
-      - uses: actions/checkout@v4
-
-      # Ruby setup + Bundler cache (no manual gem install needed)
+      - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ env.RUBY_VERSION }}
-          bundler-cache: true
-
-      # Use Node 16 + Yarn 1.22 (Webpacker path)
-      - name: Use Node 16.x
-        uses: actions/setup-node@v4
+      - name: Install postgres client
+        run: sudo apt-get install libpq-dev
+      - name: Install dependencies
+        run: |
+          gem install bundler
+          bundler install
+      - name: Create database
+        run: |
+          bundler exec rails db:create RAILS_ENV=test
+          bundler exec rails db:migrate RAILS_ENV=test
+      - uses: borales/actions-yarn@v3.0.0
         with:
-          node-version: '16'
-          cache: 'yarn'
-
-      - name: Install Yarn 1.22.x
-        run: npm i -g yarn@1.22.22
-
-      - name: Install JS dependencies
-        run: yarn install --frozen-lockfile
-
-      # Optional: verify Postgres is healthy before Rails tries to connect
-      - name: Wait for Postgres
-        run: |
-          for i in {1..30}; do
-            pg_isready -h localhost -U $POSTGRES_USER && break
-            sleep 1
-          done
-
-      - name: Install Postgres client headers
-        run: sudo apt-get update && sudo apt-get install -y libpq-dev
-
-      - name: Create & migrate test DB
-        env:
-          RAILS_ENV: test
-        run: |
-          bundle exec rails db:create
-          bundle exec rails db:migrate
-
+          cmd: install
       - name: Run tests
-        run: bundle exec rspec .
-
+        run: bundler exec rspec .
       - name: Run brakeman
-        run: bundle exec brakeman -o brakeman.txt || true
-
+        run: brakeman -o brakeman.txt
       - name: Run rubocop
-        run: bundle exec rubocop --force-exclusion vendor/*/** --out rubocop.txt
-
+        run: bundler exec rubocop --force-exclusion vendor/*/** --out rubocop.txt
       - name: Upload coverage results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@master
         if: always()
         with:
           name: coverage-report
           path: coverage
-
       - name: Upload rubocop report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@master
         if: always()
         with:
           name: rubocop-report.txt
           path: rubocop.txt
-
       - name: Upload brakeman report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@master
         if: always()
         with:
           name: brakeman-report.txt
           path: brakeman.txt
+
